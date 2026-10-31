@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>File Transfer — Open phone</title>
+<link rel="icon" href="../assets/icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="codec.js"></script>
+<style>
+  :root { --primary:#3f51b5; --pc:#dfe1ff; --opc:#172267; --surface:#f9f9ff; --low:#f1f1f8; --high:#e4e5ed; --ink:#1a1c24; --muted:#62636d; --outline:#d6d6e0; --green:#1e8e3e; --live:#4ade73; --err:#ba1a1a; --amber:#f3b33d; }
+  @media (prefers-color-scheme: dark) { :root { --primary:#bbc3ff; --pc:#34448f; --opc:#dfe1ff; --surface:#11131a; --low:#191b23; --high:#292b34; --ink:#e4e1e9; --muted:#c7c5cf; --outline:#3a3c46; --green:#4ade73; --err:#ffb4ab; } }
+  * { box-sizing:border-box; margin:0; }
+  body { font-family: Inter, "Noto Sans Bengali", system-ui, sans-serif; background:var(--surface); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  button { font:inherit; cursor:pointer; }
+  .top { display:flex; align-items:center; gap:12px; padding:14px 20px; border-bottom:1px solid var(--outline); }
+  .top img { width:36px; height:36px; border-radius:10px; }
+  .top .name { font-weight:700; }
+  .top .sub { font-size:12px; color:var(--muted); }
+  .grow { flex:1; min-width:0; }
+  .center { max-width:560px; margin:40px auto; padding:0 16px; text-align:center; }
+  .card { background:var(--low); border-radius:24px; padding:24px; }
+  .eyebrow { font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--primary); }
+  h1 { font-size:26px; letter-spacing:-.02em; margin:6px 0 8px; }
+  .muted { color:var(--muted); }
+  .small { font-size:13px; }
+  .btn { border:0; border-radius:14px; padding:11px 18px; font-weight:600; background:var(--primary); color:#fff; }
+  @media (prefers-color-scheme: dark) { .btn { color:#172267; } }
+  .btn.tonal { background:var(--pc); color:var(--opc); }
+  .btn.ghost { background:transparent; color:var(--primary); border:1px solid var(--outline); }
+  .btn:disabled { opacity:.5; cursor:default; }
+  #qr { display:inline-block; background:#fff; padding:12px; border-radius:18px; margin:18px 0 10px; }
+  #qr img, #qr svg { display:block; width:280px; height:280px; }
+  .code { font-family: ui-monospace, Consolas, monospace; font-size:12px; color:var(--primary); background:var(--pc); border-radius:10px; padding:8px 10px; word-break:break-all; max-height:64px; overflow:hidden; text-align:left; }
+  .auth { display:inline-block; font-weight:700; color:var(--opc); background:var(--pc); border-radius:12px; padding:8px 16px; margin-top:12px; }
+  .spinner { width:22px; height:22px; border:3px solid var(--pc); border-top-color:var(--primary); border-radius:50%; animation:spin 1s linear infinite; display:inline-block; vertical-align:middle; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .steps { text-align:left; margin-top:18px; }
+  .steps li { margin:8px 0 8px 18px; color:var(--muted); font-size:14px; }
+
+  /* browser */
+  #app { display:none; height:100vh; flex-direction:column; }
+  .bar { display:flex; align-items:center; gap:8px; padding:12px 20px; flex-wrap:wrap; }
+  .crumbs { display:flex; align-items:center; gap:2px; flex-wrap:wrap; flex:1; min-width:200px; }
+  .crumbs button { border:0; background:none; color:var(--primary); padding:4px 6px; border-radius:8px; font-weight:500; }
+  .crumbs button.cur { color:var(--ink); font-weight:700; cursor:default; }
+  .crumbs span { color:var(--muted); }
+  .chip-row { display:flex; gap:8px; overflow-x:auto; padding:0 20px 10px; }
+  .chip { border:1px solid var(--outline); background:transparent; color:var(--muted); border-radius:999px; padding:6px 14px; white-space:nowrap; font-weight:500; font-size:14px; }
+  .chip.on { background:var(--pc); color:var(--opc); border-color:transparent; }
+  .list { flex:1; overflow:auto; margin:0 20px; background:var(--low); border-radius:20px; position:relative; }
+  .row { display:grid; grid-template-columns:40px 1fr 100px 170px; align-items:center; gap:12px; padding:9px 14px; border-bottom:1px solid var(--outline); cursor:pointer; }
+  .row:hover { background:var(--high); }
+  .row .ic { width:36px; height:36px; border-radius:10px; display:grid; place-items:center; font-size:18px; }
+  .row .nm { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .row .sz, .row .dt { color:var(--muted); font-size:13px; text-align:right; }
+  @media (max-width:640px) { .row { grid-template-columns:40px 1fr 80px; } .row .dt { display:none; } }
+  .empty { padding:48px; text-align:center; color:var(--muted); }
+  .drop { position:absolute; inset:0; border:3px dashed var(--primary); border-radius:20px; background:color-mix(in srgb, var(--surface) 88%, transparent); display:none; align-items:center; justify-content:center; font-size:20px; font-weight:700; }
+  .transfers { margin:10px 20px 14px; max-height:200px; overflow:auto; }
+  .tr { display:grid; grid-template-columns:24px 1fr 150px; gap:10px; align-items:center; padding:6px 0; font-size:14px; }
+  .tr .pb { height:6px; background:var(--high); border-radius:6px; overflow:hidden; margin-top:4px; }
+  .tr .pb i { display:block; height:100%; background:var(--primary); width:0; }
+  .tr.done .pb i { background:var(--green); }
+  .tr.fail .pb i { background:var(--err); }
+  .tr .st { text-align:right; color:var(--muted); font-size:12px; }
+  .live { width:9px; height:9px; border-radius:50%; background:var(--live); display:inline-block; box-shadow:0 0 0 4px color-mix(in srgb, var(--live) 25%, transparent); }
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#2e303b; color:#fff; padding:12px 18px; border-radius:12px; display:none; z-index:10; }
+</style>
+</head>
+<body>
+<div class="top">
+  <img src="../assets/icon.png" alt="">
+  <div class="grow"><div class="name">File Transfer</div><div class="sub" id="sub">Open your phone in this browser</div></div>
+  <span id="authTop"></span>
+</div>
+
+<!-- connection steps -->
+<div class="center" id="connect">
+  <div class="card" id="stage"><span class="spinner"></span></div>
+  <p class="small muted" style="margin-top:14px">Files go directly between this browser and the phone, end-to-end encrypted. Nothing is uploaded to a server.</p>
+</div>
+
+<!-- file browser -->
+<div id="app">
+  <div class="bar">
+    <span class="live"></span>
+    <div class="grow" style="min-width:160px"><b id="phoneName">Phone</b> <span class="small muted" id="authBar"></span></div>
+    <label class="btn" style="display:inline-block">Upload files<input type="file" id="upload" multiple hidden></label>
+    <button class="btn tonal" id="mkdir">New folder</button>
+    <button class="btn ghost" id="refresh">Refresh</button>
+    <button class="btn ghost" id="disconnect">Disconnect</button>
+  </div>
+  <div class="chip-row" id="quick"></div>
+  <div class="bar" style="padding-top:0"><div class="crumbs" id="crumbs"></div><span class="small muted">Click a file to download · drop files here to upload</span></div>
+  <div class="list" id="list"><div class="drop" id="drop">Drop to send to the phone</div></div>
+  <div class="transfers" id="transfers"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+// ---------------------------------------------------------------- helpers
+const $ = id => document.getElementById(id);
+const stage = html => { $('stage').innerHTML = html; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function size(n) { if (!(n >= 0)) return ''; if (n < 1024) return n + ' B'; const u = ['KB', 'MB', 'GB', 'TB']; let v = n / 1024, i = 0; while (v >= 1024 && i < 3) { v /= 1024; i++; } return (v >= 100 ? v.toFixed(0) : v.toFixed(1)) + ' ' + u[i]; }
+function toast(t) { const el = $('toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => el.style.display = 'none', 3500); }
+function icon(it) {
+  if (it.d) return ['📁', 'color-mix(in srgb, var(--amber) 20%, transparent)'];
+  const e = (it.n.split('.').pop() || '').toLowerCase();
+  if (/^(jpe?g|png|gif|webp|heic|bmp)$/.test(e)) return ['🖼️', '#1e8e3e22'];
+  if (/^(mp4|mkv|mov|avi|3gp|webm)$/.test(e)) return ['🎬', '#d9302522'];
+  if (/^(mp3|m4a|wav|aac|ogg|flac|opus)$/.test(e)) return ['🎵', '#8e44c922'];
+  if (e === 'pdf') return ['📕', '#c5221f22'];
+  if (/^(zip|rar|7z|tar|gz)$/.test(e)) return ['🗜️', '#b0600022'];
+  if (/^(apk|xapk)$/.test(e)) return ['🤖', '#2e7d3222'];
+  return ['📄', '#3f51b522'];
+}
+
+// ---------------------------------------------------------------- connection
+let pc, dc, offerSdp, phoneName = 'Phone', auth = '';
+
+async function start() {
+  const hash = decodeURIComponent(location.hash.slice(1));
+  if (!hash) {
+    stage(`<div class="eyebrow">No app needed</div><h1>Open your phone here</h1>
+      <p class="muted">On the phone, open <b>File Transfer → Nearby share → Internet → Open in a computer's browser</b> and send the link to this computer.</p>`);
+    return;
+  }
+  if (!window.RTCPeerConnection || !window.DecompressionStream) {
+    stage(`<h1>Please use a newer browser</h1><p class="muted">Open this link in the latest Chrome, Edge or Firefox.</p>`);
+    return;
+  }
+  const offer = await decodeCode(hash);
+  if (!offer || offer.t !== 'o') { stage(`<h1>This link is incomplete</h1><p class="muted">Copy the whole link from the phone again.</p>`); return; }
+  phoneName = offer.n || 'Phone';
+  offerSdp = offer.s;
+  $('sub').textContent = 'Connecting to ' + phoneName;
+  stage(`<span class="spinner"></span><p style="margin-top:12px">Preparing a secure connection…</p>`);
+
+  pc = new RTCPeerConnection({ iceServers: STUN });
+  pc.ondatachannel = e => attach(e.channel);
+  pc.onconnectionstatechange = () => { if (pc.connectionState === 'failed') ended('noroute'); };
+  await pc.setRemoteDescription({ type: 'offer', sdp: offerSdp });
+  await pc.setLocalDescription(await pc.createAnswer());
+  await new Promise(res => {
+    if (pc.iceGatheringState === 'complete') return res();
+    const t = setTimeout(res, 6000);
+    pc.addEventListener('icegatheringstatechange', () => { if (pc.iceGatheringState === 'complete') { clearTimeout(t); res(); } });
+  });
+  const answerSdp = pc.localDescription.sdp;
+  auth = await authCode(offerSdp, answerSdp);
+  const code = await encodeCode({ t: 'a', s: answerSdp, n: browserName() });
+
+  let qrHtml = '';
+  try { const q = qrcode(0, 'L'); q.addData(code); q.make(); qrHtml = q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }); } catch (e) { }
+  stage(`<div class="eyebrow">Last step</div><h1>Scan this with the phone</h1>
+    <p class="muted">On ${esc(phoneName)}: tap <b>Scan QR</b> under “2. Scan the QR code shown on the computer”.</p>
+    <div id="qr">${qrHtml}</div>
+    <div class="code" id="codeText">${esc(code)}</div>
+    <p style="margin-top:12px"><button class="btn tonal" id="copy">Copy code instead</button></p>
+    <div class="auth">Code ${auth}</div>
+    <p class="small muted" style="margin-top:6px">Check the phone shows the same code.</p>
+    <p class="small muted" style="margin-top:14px"><span class="spinner" style="width:14px;height:14px;border-width:2px"></span> Waiting for the phone…</p>`);
+  $('copy').onclick = async () => { try { await navigator.clipboard.writeText(code); toast('Code copied — paste it on the phone'); } catch (e) { toast('Select the code and copy it'); } };
+  history.replaceState(null, '', location.pathname); // don't keep the code in the address bar
+}
+
+function ended(reason) {
+  $('app').style.display = 'none';
+  $('connect').style.display = 'block';
+  $('authTop').textContent = '';
+  stage(reason === 'noroute'
+    ? `<h1>Couldn't connect</h1><p class="muted">These two networks don't allow a direct connection. Try with the phone on Wi-Fi, or another network.</p>`
+    : `<h1>Disconnected</h1><p class="muted">The phone stopped sharing. Open a new link from the phone to connect again.</p>`);
+}
+
+// ---------------------------------------------------------------- protocol
+let nextId = 1;
+const waiters = new Map();            // id -> {resolve, reject}
+let incoming = null;                  // current download {id, name, size, got, chunks|writer, row}
+const uploads = [];                   // queue of File
+let uploading = false;
+let path = '/';
+
+function attach(ch) {
+  dc = ch;
+  dc.binaryType = 'arraybuffer';
+  dc.bufferedAmountLowThreshold = 1 << 20;
+  dc.onopen = opened;
+  dc.onclose = () => ended('closed');
+  dc.onmessage = e => {
+    if (typeof e.data !== 'string') return onBinary(new Uint8Array(e.data));
+    let m; try { m = JSON.parse(e.data); } catch (x) { return; }
+    if (m.t === 'hi') { phoneName = m.n || phoneName; $('phoneName').textContent = phoneName; return; }
+    if (m.t === 'get') { if (incoming && incoming.id === m.id) { incoming.size = m.s; } return; }
+    if (m.t === 'getend') { finishDownload(m.id); return; }
+    if (m.t === 'err') {
+      if (incoming && incoming.id === m.id) failDownload(m.m);
+      const w = waiters.get(m.id); if (w) { waiters.delete(m.id); w.reject(new Error(m.m)); } else toast(m.m);
+      return;
+    }
+    const w = waiters.get(m.id); if (w) { waiters.delete(m.id); w.resolve(m); }
+  };
+  if (dc.readyState === 'open') opened();
+}
+
+function request(obj) {
+  const id = nextId++;
+  return new Promise((resolve, reject) => { waiters.set(id, { resolve, reject }); dc.send(JSON.stringify(Object.assign({ id }, obj))); });
+}
+
+function opened() {
+  $('connect').style.display = 'none';
+  $('app').style.display = 'flex';
+  $('phoneName').textContent = phoneName;
+  $('authBar').textContent = '· code ' + auth;
+  $('authTop').innerHTML = '<span class="live"></span>';
+  $('sub').textContent = 'Connected to ' + phoneName;
+  const quick = [['Internal storage', '/'], ['DCIM', '/DCIM'], ['Download', '/Download'], ['Documents', '/Documents'], ['Pictures', '/Pictures'], ['Movies', '/Movies'], ['Music', '/Music']];
+  $('quick').innerHTML = quick.map(([l, p]) => `<button class="chip" data-p="${p}">${l}</button>`).join('');
+  $('quick').querySelectorAll('button').forEach(b => b.onclick = () => open(b.dataset.p));
+  open('/');
+}
+
+async function open(p) {
+  path = p;
+  $('quick').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+  const parts = p.split('/').filter(Boolean);
+  let html = `<button class="${parts.length ? '' : 'cur'}" data-p="/">Internal storage</button>`;
+  parts.forEach((part, i) => { html += `<span>›</span><button class="${i === parts.length - 1 ? 'cur' : ''}" data-p="/${parts.slice(0, i + 1).map(esc).join('/')}">${esc(part)}</button>`; });
+  $('crumbs').innerHTML = html;
+  $('crumbs').querySelectorAll('button:not(.cur)').forEach(b => b.onclick = () => open(b.dataset.p));
+  try {
+    const res = await request({ t: 'ls', p });
+    if (path !== p) return;
+    render(res.items || []);
+  } catch (e) { toast("Couldn't open this folder: " + e.message); }
+}
+
+function render(items) {
+  const list = $('list'); const drop = $('drop');
+  list.innerHTML = ''; list.appendChild(drop);
+  if (!items.length) { list.insertAdjacentHTML('beforeend', '<div class="empty">This folder is empty — drop files here to send them to the phone.</div>'); return; }
+  const frag = document.createDocumentFragment();
+  items.forEach(it => {
+    const [ic, bg] = icon(it);
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `<span class="ic" style="background:${bg}">${ic}</span><span class="nm">${esc(it.n)}</span><span class="sz">${it.d ? '—' : size(it.s)}</span><span class="dt">${it.m ? new Date(it.m).toLocaleString() : ''}</span>`;
+    const full = (path.endsWith('/') ? path : path + '/') + it.n;
+    row.onclick = () => it.d ? open(full) : download(full, it.n, it.s);
+    frag.appendChild(row);
+  });
+  list.appendChild(frag);
+}
+
+// ---------------------------------------------------------------- downloads (phone → browser)
+const downloads = [];
+let downloading = false;
+
+async function download(p, name, total) {
+  let writer = null;
+  // Big files stream straight to disk where the browser allows it (needs the click's user gesture)
+  if (total > 300 * 1024 * 1024 && window.showSaveFilePicker) {
+    try { const h = await window.showSaveFilePicker({ suggestedName: name }); writer = await h.createWritable(); }
+    catch (e) { return; }
+  }
+  const row = addTransfer('↓', name);
+  downloads.push({ p, name, total, writer, row });
+  pumpDownloads();
+}
+
+async function pumpDownloads() {
+  if (downloading) return;
+  const job = downloads.shift(); if (!job) return;
+  downloading = true;
+  const id = nextId++;
+  incoming = { id, name: job.name, size: job.total, got: 0, chunks: job.writer ? null : [], writer: job.writer, row: job.row, done: null };
+  const finished = new Promise(res => incoming.done = res);
+  dc.send(JSON.stringify({ t: 'get', id, p: job.p }));
+  await finished;
+  downloading = false;
+  pumpDownloads();
+}
+
+function onBinary(bytes) {
+  const d = incoming; if (!d) return;
+  if (d.writer) d.writer.write(bytes); else d.chunks.push(bytes);
+  d.got += bytes.length;
+  progress(d.row, d.got, d.size);
+}
+
+async function finishDownload(id) {
+  const d = incoming; if (!d || d.id !== id) return;
+  incoming = null;
+  if (d.writer) { await d.writer.close(); }
+  else {
+    const url = URL.createObjectURL(new Blob(d.chunks));
+    const a = document.createElement('a'); a.href = url; a.download = d.name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+  progress(d.row, d.got, d.got, 'done', 'Saved');
+  d.done();
+}
+
+function failDownload(msg) {
+  const d = incoming; if (!d) return;
+  incoming = null;
+  if (d.writer) d.writer.abort?.();
+  progress(d.row, 0, 1, 'fail', 'Failed');
+  toast(msg); d.done();
+}
+
+// ---------------------------------------------------------------- uploads (browser → phone)
+function queueUploads(files) {
+  for (const f of files) uploads.push({ file: f, dir: path, row: addTransfer('↑', f.name) });
+  pumpUploads();
+}
+
+async function pumpUploads() {
+  if (uploading) return;
+  uploading = true;
+  while (uploads.length) {
+    const { file, dir, row } = uploads.shift();
+    try {
+      await request({ t: 'put', p: dir, n: file.name, s: file.size });
+      const CHUNK = 32 * 1024;
+      for (let off = 0; off < file.size; off += CHUNK) {
+        if (dc.bufferedAmount > 4 << 20) await new Promise(r => dc.addEventListener('bufferedamountlow', r, { once: true }));
+        dc.send(await file.slice(off, off + CHUNK).arrayBuffer());
+        progress(row, Math.min(off + CHUNK, file.size), file.size);
+      }
+      await request({ t: 'putend' });
+      progress(row, file.size, file.size, 'done', 'Sent');
+      if (dir === path) open(path);
+    } catch (e) { progress(row, 0, 1, 'fail', 'Failed'); toast('Upload failed: ' + e.message); }
+  }
+  uploading = false;
+}
+
+// ---------------------------------------------------------------- transfer list UI
+function addTransfer(arrow, name) {
+  const el = document.createElement('div');
+  el.className = 'tr';
+  el.innerHTML = `<span>${arrow}</span><div><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</div><div class="pb"><i></i></div></div><span class="st">Waiting…</span>`;
+  $('transfers').prepend(el);
+  return el;
+}
+function progress(row, got, total, cls, label) {
+  const p = total > 0 ? Math.min(1, got / total) : 1;
+  row.querySelector('i').style.width = (p * 100) + '%';
+  if (cls) row.classList.add(cls);
+  row.querySelector('.st').textContent = label || `${Math.round(p * 100)}% · ${size(got)} / ${size(total)}`;
+}
+
+// ---------------------------------------------------------------- wiring
+$('upload').onchange = e => { queueUploads(e.target.files); e.target.value = ''; };
+$('refresh').onclick = () => open(path);
+$('disconnect').onclick = () => { try { dc.close(); pc.close(); } catch (e) { } ended('closed'); };
+$('mkdir').onclick = async () => {
+  const name = prompt('New folder name'); if (!name) return;
+  try { await request({ t: 'mkdir', p: path, n: name }); open(path); } catch (e) { toast(e.message); }
+};
+const listEl = $('list');
+['dragenter', 'dragover'].forEach(ev => listEl.addEventListener(ev, e => { e.preventDefault(); $('drop').style.display = 'flex'; }));
+['dragleave', 'drop'].forEach(ev => listEl.addEventListener(ev, e => { e.preventDefault(); if (ev === 'drop' || e.target === $('drop')) $('drop').style.display = 'none'; }));
+listEl.addEventListener('drop', e => { const files = [...e.dataTransfer.files]; if (files.length) queueUploads(files); });
+window.addEventListener('beforeunload', e => { if (dc && dc.readyState === 'open') { e.preventDefault(); e.returnValue = ''; } });
+
+// exposed for automated tests only
+window.__ft = { decodeCode, encodeCode, authCode };
+start().catch(e => stage(`<h1>Something went wrong</h1><p class="muted">${esc(e.message)}</p>`));
+</script>
+</body>
+</html>

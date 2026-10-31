@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>File Transfer for Windows — Download</title>
+<meta name="description" content="Transfer files between your phone and PC over Wi-Fi or the internet. Download File Transfer for Windows.">
+<meta property="og:title" content="File Transfer for Windows">
+<meta property="og:description" content="Phone ⇄ PC file transfer over Wi-Fi or the internet. Free download.">
+<meta property="og:image" content="assets/icon.png">
+<link rel="icon" href="assets/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #3f51b5; --primary-c: #dfe1ff; --on-primary-c: #172267;
+    --surface: #f9f9ff; --low: #f1f1f8; --high: #e4e5ed; --ink: #1a1c24; --muted: #62636d; --outline: #d6d6e0;
+    --green: #1e8e3e; --hero1: #5364ca; --hero2: #3445a5; --hero3: #223080;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --primary: #bbc3ff; --primary-c: #34448f; --on-primary-c: #dfe1ff;
+      --surface: #11131a; --low: #191b23; --high: #292b34; --ink: #e4e1e9; --muted: #c7c5cf; --outline: #3a3c46; --green: #4ade73; }
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: Inter, "Noto Sans Bengali", system-ui, sans-serif; background: var(--surface); color: var(--ink); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 16px; }
+
+  header.hero { background: radial-gradient(circle at 75% 15%, #6473d9 0, var(--hero2) 45%, var(--hero3) 100%); color: #fff; padding: 28px 0 36px; position: relative; overflow: hidden; }
+  header.hero::after { content: ""; position: absolute; width: 420px; height: 420px; right: -160px; top: -160px; border-radius: 50%; border: 60px solid rgba(255,255,255,.05); }
+  .lang { position: absolute; right: 16px; top: 16px; z-index: 2; display: flex; background: rgba(255,255,255,.12); border-radius: 999px; padding: 3px; }
+  .lang button { border: 0; background: transparent; color: #fff; font: 600 13px Inter, sans-serif; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+  .lang button[aria-pressed="true"] { background: #fff; color: var(--hero2); }
+  .brand { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; margin-top: 28px; }
+  .brand img { width: 64px; height: 64px; border-radius: 18px; box-shadow: 0 10px 24px rgba(10,16,61,.35); background: #fff; }
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
+  h1 { font-size: clamp(30px, 7vw, 44px); line-height: 1.12; letter-spacing: -.02em; font-weight: 800; margin-top: 22px; position: relative; z-index: 1; }
+  .lead { font-size: 17px; opacity: .9; margin-top: 10px; position: relative; z-index: 1; max-width: 560px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; position: relative; z-index: 1; }
+  .pill { font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); }
+
+  main { padding: 0 0 48px; }
+  .downloads { display: grid; gap: 12px; margin-top: -22px; position: relative; z-index: 2; }
+  .dl { display: flex; align-items: center; gap: 14px; text-decoration: none; color: inherit; background: var(--surface); border: 1px solid var(--outline); border-radius: 22px; padding: 16px 18px; box-shadow: 0 10px 30px rgba(20,28,80,.10); transition: transform .15s, box-shadow .15s; min-height: 76px; }
+  .dl:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(20,28,80,.16); }
+  .dl.primary { background: var(--primary); color: #fff; border-color: transparent; }
+  @media (prefers-color-scheme: dark) { .dl.primary { color: #172267; } }
+  .dl .ic { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; flex: none; background: var(--primary-c); color: var(--primary); }
+  .dl.primary .ic { background: rgba(255,255,255,.18); color: inherit; }
+  .dl .t { flex: 1; min-width: 0; }
+  .dl strong { display: block; font-size: 17px; }
+  .dl small { display: block; font-size: 13px; opacity: .8; }
+  .dl .arrow { font-size: 22px; opacity: .8; }
+  .note { font-size: 13px; color: var(--muted); margin-top: 10px; text-align: center; }
+
+  section { margin-top: 36px; }
+  h2 { font-size: 22px; letter-spacing: -.01em; margin-bottom: 12px; }
+  .card { background: var(--low); border-radius: 22px; padding: 6px 0; }
+  .step { display: flex; gap: 14px; padding: 14px 18px; align-items: flex-start; }
+  .step + .step { border-top: 1px solid var(--outline); }
+  .num { width: 28px; height: 28px; border-radius: 50%; background: var(--primary-c); color: var(--primary); font-weight: 700; font-size: 14px; display: grid; place-items: center; flex: none; margin-top: 1px; }
+  .step b { display: block; }
+  .step span { color: var(--muted); font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .feat { background: var(--low); border-radius: 20px; padding: 16px; }
+  .feat .fi { font-size: 22px; }
+  .feat b { display: block; margin-top: 6px; }
+  .feat span { font-size: 14px; color: var(--muted); }
+  details { background: var(--low); border-radius: 18px; padding: 14px 18px; }
+  details + details { margin-top: 10px; }
+  summary { font-weight: 600; cursor: pointer; }
+  details p { margin-top: 8px; color: var(--muted); font-size: 14px; }
+  .android { display: flex; align-items: center; gap: 14px; background: var(--primary-c); color: var(--on-primary-c); border-radius: 22px; padding: 18px; text-decoration: none; }
+  .android img { width: 52px; height: 52px; border-radius: 14px; background: #fff; }
+  .android b { display: block; font-size: 17px; }
+  .android span { font-size: 14px; opacity: .85; }
+  footer { color: var(--muted); font-size: 13px; text-align: center; padding: 28px 16px 40px; }
+  footer a { color: var(--primary); }
+  code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; word-break: break-all; }
+  html:not([lang="en"]) [data-en], html[lang="en"] [data-bn] { display: none !important; }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-set="bn" aria-pressed="true">বাংলা</button>
+      <button type="button" data-set="en" aria-pressed="false">English</button>
+    </div>
+    <div class="brand">
+      <img src="assets/icon.png" alt="">
+      <div>
+        <div style="font-weight:700;font-size:18px">File Transfer</div>
+        <div class="eyebrow">Windows · v1.1.0</div>
+      </div>
+    </div>
+    <h1>
+      <span data-bn>ফোন ⇄ পিসি, তার ছাড়াই</span>
+      <span data-en>Phone ⇄ PC, no cable</span>
+    </h1>
+    <p class="lead">
+      <span data-bn>Wi-Fi বা ইন্টারনেট দিয়ে ফোন আর কম্পিউটারের মধ্যে ফাইল আদান-প্রদান করুন। ফোন নিজে থেকেই খুঁজে পাওয়া যায় — কোনো ঠিকানা লিখতে হয় না।</span>
+      <span data-en>Move files between your phone and computer over Wi-Fi or the internet. Your phone shows up automatically — no address to type.</span>
+    </p>
+    <div class="pills">
+      <span class="pill" data-bn>ফ্রি</span><span class="pill" data-en>Free</span>
+      <span class="pill">Windows 10 / 11</span>
+      <span class="pill" data-bn>এন্ড-টু-এন্ড এনক্রিপ্টেড</span><span class="pill" data-en>End-to-end encrypted</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="downloads">
+    <a class="dl primary" href="https://github.com/emran1249/file-transfer-desktop/releases/latest/download/FileTransfer-Setup.msi">
+      <span class="ic">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>
+      </span>
+      <span class="t">
+        <strong data-bn>ইনস্টলার ডাউনলোড করুন</strong><strong data-en>Download installer</strong>
+        <small data-bn>Windows (.msi) · ~106 MB · স্টার্ট মেনু ও ডেস্কটপ শর্টকাট</small>
+        <small data-en>Windows (.msi) · ~106 MB · Start menu &amp; desktop shortcut</small>
+      </span>
+      <span class="arrow">›</span>
+    </a>
+    <a class="dl" href="https://github.com/emran1249/file-transfer-desktop/releases/latest/download/FileTransfer-Portable.exe">
+      <span class="ic">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>
+      </span>
+      <span class="t">
+        <strong data-bn>পোর্টেবল সংস্করণ</strong><strong data-en>Portable version</strong>
+        <small data-bn>একটি .exe ফাইল · ইনস্টল ছাড়াই চালান · ~105 MB</small>
+        <small data-en>Single .exe · runs without installing · ~105 MB</small>
+      </span>
+      <span class="arrow">›</span>
+    </a>
+  </div>
+  <p class="note">
+    <span data-bn>সব ভার্সন: </span><span data-en>All versions: </span>
+    <a href="https://github.com/emran1249/file-transfer-desktop/releases" style="color:var(--primary)">GitHub Releases</a>
+  </p>
+
+  <section>
+    <h2 data-bn>কীভাবে ব্যবহার করবেন</h2><h2 data-en>How it works</h2>
+    <div class="card">
+      <div class="step"><span class="num">1</span><div>
+        <b data-bn>ফোনে File Transfer অ্যাপ খুলুন</b><b data-en>Open File Transfer on your phone</b>
+        <span data-bn>Google Play থেকে ফ্রি ডাউনলোড করা যায় (নিচে লিংক)।</span><span data-en>It's free on Google Play (link below).</span>
+      </div></div>
+      <div class="step"><span class="num">2</span><div>
+        <b data-bn>একই Wi-Fi তে: "FTP সার্ভার চালু করুন" চাপুন</b><b data-en>Same Wi-Fi: tap "Start FTP Server"</b>
+        <span data-bn>পিসির অ্যাপের বাম পাশে আপনার ফোনের নাম চলে আসবে — ক্লিক করলেই কানেক্ট।</span>
+        <span data-en>Your phone appears on the left of the PC app — click it to connect.</span>
+      </div></div>
+      <div class="step"><span class="num">3</span><div>
+        <b data-bn>অন্য জায়গায়/মোবাইল ডাটাতে: "Internet transfer"</b><b data-en>Anywhere / mobile data: "Internet transfer"</b>
+        <span data-bn>একটি কোড বা QR শেয়ার করুন, উত্তর কোড দিন — ফাইল সরাসরি যাবে, কোনো সার্ভারে জমা হবে না।</span>
+        <span data-en>Share a code or QR, enter the reply code — files go directly, never stored on a server.</span>
+      </div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 data-bn>যা যা করা যায়</h2><h2 data-en>What you can do</h2>
+    <div class="grid">
+      <div class="feat"><div class="fi">🖱️</div><b data-bn>ড্র্যাগ অ্যান্ড ড্রপ</b><b data-en>Drag &amp; drop</b>
+        <span data-bn>Explorer থেকে ফাইল টেনে ছেড়ে দিলেই ফোনে চলে যায়।</span><span data-en>Drop files from Explorer to send them to the phone.</span></div>
+      <div class="feat"><div class="fi">📂</div><b data-bn>ফোনের ফাইল ব্রাউজ</b><b data-en>Browse your phone</b>
+        <span data-bn>DCIM, Download, Documents — ডাবল-ক্লিকে পিসিতে নামান।</span><span data-en>DCIM, Download, Documents — double-click to download.</span></div>
+      <div class="feat"><div class="fi">🌍</div><b data-bn>ইন্টারনেট দিয়ে</b><b data-en>Over the internet</b>
+        <span data-bn>ফোন মোবাইল ডাটাতে থাকলেও কাজ করে, পিয়ার-টু-পিয়ার।</span><span data-en>Works even when the phone is on mobile data, peer-to-peer.</span></div>
+      <div class="feat"><div class="fi">🔒</div><b data-bn>পাসওয়ার্ড সুরক্ষা</b><b data-en>Password protection</b>
+        <span data-bn>ফোনে পাসওয়ার্ড চালু থাকলে পিসি লগইন চায়।</span><span data-en>The PC asks to log in when the phone is protected.</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 data-bn>প্রশ্ন ও উত্তর</h2><h2 data-en>FAQ</h2>
+    <details>
+      <summary><span data-bn>"Windows protected your PC" দেখালে কী করব?</span><span data-en>Windows says "Windows protected your PC"</span></summary>
+      <p data-bn>অ্যাপটি নতুন এবং এখনো ডিজিটাল সাইন করা হয়নি, তাই SmartScreen সতর্ক করে। <b>More info → Run anyway</b> চাপুন। ফাইলটি শুধু এই পেজের GitHub লিংক থেকে নামাবেন।</p>
+      <p data-en>The app is new and not code-signed yet, so SmartScreen warns. Click <b>More info → Run anyway</b>. Only download it from the GitHub links on this page.</p>
+    </details>
+    <details>
+      <summary><span data-bn>ফোন খুঁজে পাচ্ছে না</span><span data-en>The PC can't find my phone</span></summary>
+      <p data-bn>প্রথমবার অ্যাপ খুললে Windows Firewall অনুমতি চাইলে <b>Private networks</b> এ Allow দিন। ফোন আর পিসি একই Wi-Fi তে আছে কিনা দেখুন, অথবা "Connect by address" দিয়ে ফোনের ঠিকানা লিখুন।</p>
+      <p data-en>When Windows Firewall asks on first launch, allow it on <b>Private networks</b>. Make sure both are on the same Wi-Fi, or use "Connect by address" with the address shown on the phone.</p>
+    </details>
+    <details>
+      <summary><span data-bn>ইনস্টলার না পোর্টেবল — কোনটা নেব?</span><span data-en>Installer or portable?</span></summary>
+      <p data-bn>নিয়মিত ব্যবহারের জন্য ইনস্টলার। পোর্টেবল .exe ইনস্টল ছাড়াই চলে — প্রথমবার চালালে কয়েক সেকেন্ড প্রস্তুত হতে সময় নেয়।</p>
+      <p data-en>Installer for everyday use. The portable .exe runs without installing — the first launch takes a few seconds to prepare.</p>
+    </details>
+    <details>
+      <summary><span data-bn>ফাইল যাচাই (SHA-256)</span><span data-en>Verify the files (SHA-256)</span></summary>
+      <p>FileTransfer-Setup.msi<br><code>bcd4cf1a7a54f673ace79b8fc0ce9aa096a6b72541fdeb9a17e34ac9584075bc</code></p>
+      <p>FileTransfer-Portable.exe<br><code>d89d26a8d26bb2d46c104da4dbb1154e39b2f0eb16172459232ac13aec5cbd04</code></p>
+    </details>
+  </section>
+
+  <section>
+    <a class="android" href="https://play.google.com/store/apps/details?id=com.ehappsbd.filetransfer">
+      <img src="assets/icon.png" alt="">
+      <div>
+        <b data-bn>ফোনের অ্যাপ — Google Play</b><b data-en>Phone app — Google Play</b>
+        <span>File Transfer: Mobile To PC</span>
+      </div>
+    </a>
+  </section>
+</main>
+
+<footer>
+  © Sunlight IT World ·
+  <a href="https://github.com/emran1249/file-transfer-desktop/releases">Releases</a>
+</footer>
+
+<script>
+  (function () {
+    var buttons = document.querySelectorAll('.lang button');
+    function set(lang) {
+      document.documentElement.lang = lang;
+      buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.set === lang)); });
+      try { localStorage.setItem('ft-lang', lang); } catch (e) {}
+    }
+    buttons.forEach(function (b) { b.addEventListener('click', function () { set(b.dataset.set); }); });
+    var saved = null;
+    try { saved = localStorage.getItem('ft-lang'); } catch (e) {}
+    set(saved || ((navigator.language || '').toLowerCase().indexOf('bn') === 0 ? 'bn' : 'bn'));
+  })();
+</script>
+</body>
+</html>

@@ -50,6 +50,11 @@
   .dl strong { display: block; font-size: 17px; }
   .dl small { display: block; font-size: 13px; opacity: .8; }
   .dl .arrow { font-size: 22px; opacity: .8; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 16px; }
+  @media (max-width: 520px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  .stat { background: var(--low); border-radius: 16px; padding: 12px 10px; text-align: center; }
+  .stat b { display: flex; justify-content: center; align-items: center; min-height: 28px; font-size: 22px; color: var(--primary); }
+  .stat span { display: block; font-size: 12px; color: var(--muted); }
   .note { font-size: 13px; color: var(--muted); margin-top: 10px; text-align: center; }
 
   section { margin-top: 36px; }
@@ -90,7 +95,7 @@
       <img src="assets/icon.png" alt="">
       <div>
         <div style="font-weight:700;font-size:18px">File Transfer</div>
-        <div class="eyebrow">Windows · v1.1.0</div>
+        <div class="eyebrow">Windows · v1.2.0</div>
       </div>
     </div>
     <h1>
@@ -138,6 +143,12 @@
     <span data-bn>সব ভার্সন: </span><span data-en>All versions: </span>
     <a href="https://github.com/emran1249/file-transfer-desktop/releases" style="color:var(--primary)">GitHub Releases</a>
   </p>
+  <div class="stats" aria-label="Stats">
+    <div class="stat"><b id="st-visits"><img src="https://hits.sh/emran1249.github.io/file-transfer-desktop.svg?label=&amp;color=3f51b5&amp;labelColor=3f51b5&amp;style=flat-square" alt="—" height="20"></b><span data-bn>পেজ ভিজিট</span><span data-en>Page visits</span></div>
+    <div class="stat"><b id="st-msi">—</b><span data-bn>MSI ডাউনলোড</span><span data-en>MSI downloads</span></div>
+    <div class="stat"><b id="st-exe">—</b><span data-bn>EXE ডাউনলোড</span><span data-en>EXE downloads</span></div>
+    <div class="stat"><b id="st-ver">—</b><span data-bn>সর্বশেষ ভার্সন</span><span data-en>Latest version</span></div>
+  </div>
 
   <section>
     <a class="android" href="web/" style="background:var(--low);color:inherit">
@@ -237,6 +248,23 @@
     try { saved = localStorage.getItem('ft-lang'); } catch (e) {}
     set(saved || ((navigator.language || '').toLowerCase().indexOf('bn') === 0 ? 'bn' : 'bn'));
   })();
+</script>
+<script>
+  // Download counts straight from GitHub (all releases added up)
+  fetch('https://api.github.com/repos/emran1249/file-transfer-desktop/releases')
+    .then(function (r) { return r.json(); })
+    .then(function (rel) {
+      var msi = 0, exe = 0;
+      rel.forEach(function (x) { x.assets.forEach(function (a) {
+        if (/\.msi$/i.test(a.name)) msi += a.download_count;
+        else if (/\.exe$/i.test(a.name)) exe += a.download_count;
+      }); });
+      document.getElementById('st-msi').textContent = msi.toLocaleString();
+      document.getElementById('st-exe').textContent = exe.toLocaleString();
+      var latest = rel.filter(function (x) { return !x.draft && !x.prerelease; })[0];
+      if (latest) document.getElementById('st-ver').textContent = latest.tag_name;
+    })
+    .catch(function () {});
 </script>
 </body>
 </html>
